@@ -212,7 +212,7 @@ $ sudo nano /etc/login.defs
 [monitoring.shの解説]
 #!/bin/bash
 
-wall $'#Architecture: ' `hostnamectl | grep "Operating System" | cut -d ' ' -f 5- ` `awk -F':' '/^model name/ {print $2}' /proc/cpuinfo | uniq | sed -e 's/^[ \t]*//'` `arch` \
+wall $'#Architecture: ' `hostnamectl | awk '/Kernel/ {print $2 $3}'` `hostnamectl | awk '/Operating System/ {for (i=3;i<=NF;i++) printf $i" "}` \
 wall		: 現在ログインしている全てのユーザの端末に標準入力の内容を表示する。
 hostnamectl	: 
 	Linuxシステム上でホスト名と関連するシステム情報を管理するためのコマンド。
@@ -225,15 +225,8 @@ hostnamectl	:
 	Operating System: インストールされているOSの名称を示す。
 	Kernel			: 現在実行中のカーネルのバージョンを示す。カーネルはOSの中核であり、ハードウェアとソフトウェアのインターフェースを提供する。
 	Architecture	: システムのプロセッサアーキテクチャを示す。x86_64、arm、ppcなど。
-grep "Operating System"
-	Operating Systemの業を取得。
-cut -d ' ' -f 5- 
-	-d delim
-		フィールドの区切り文字(delimiter)を指定する。(ここではスペース)
-	-f list
-		抽出するフィールドの範囲を指定する。(5- は5番目以降)
-
-
+for (i=3;i<=NF;i++) printf $i" "
+	3番目以降をすべて出力
 $'\n#CPU physical: '`cat /proc/cpuinfo | grep processor | wc -l` \
 $'\n#vCPU:  '`cat /proc/cpuinfo | grep processor | wc -l` \
 $'\n'`free -m | awk 'NR==2{printf "#Memory Usage: %s/%sMB (%.2f%%)", $3,$2,$3*100/$2 }'` \
@@ -245,6 +238,49 @@ $'\n#Connection TCP:' `netstat -an | grep ESTABLISHED |  wc -l` \
 $'\n#User log: ' `who | cut -d " " -f 1 | sort -u | wc -l` \
 $'\nNetwork: IP ' `hostname -I`"("`ip a | grep link/ether | awk '{print $2}'`")" \
 $'\n#Sudo:  ' `grep 'sudo ' /var/log/auth.log | wc -l`
+
+/proc/cpuinfo:
+	processor					: 論理プロセッサの番号を示す．
+	vendor_id					: プロセッサの製造元を示す．ex) GenuineIntel, AuthenticAMDなど
+	cpu family				: プロセッサファミリーの番号を示す．
+											同じアーキテクチャや設計思想に基づいて開発された一連のプロセッサモデルのグループを指す．
+											ex) Intel Coreシリーズ，ARM Cortexシリーズなど
+	model							: プロセッサモデルの番号を示す．
+											プロセッサファミリ内での個々の製品やバリエーションを指す．
+											ex) Intel Core i7-8700K
+	model name				: プロセッサのモデル名を示す．
+											特定のプロセッサ製品を識別するための名称
+	stepping					: プロセッサのステップ番号を示す．
+											プロセッサの製造工程やリビジョンのバージョンを識別するための番号．
+											プロセッサは製造過程で改良や修正がしばしば行われる．それぞれに番号が振られる．
+	microcode					: プロセッサのマイクロコードのバージョンや更新情報を示す．
+											マイクロコード：プロセッサの動作やセキュリティの改善を行うために定期的に更新される．
+	cpu MHz						: プロセッサのクロック周波数をメガヘルツで示す．
+	cache size				: プロセッサの各レベルのキャッシュサイズを示す．
+											キャッシュとは高速なメモリのこと．
+											キャッシュは階層的な構造を持つ．L1キャッシュ，L2キャッシュ．．．などとあり，容量と速度がトレードオフとなっている．
+	physical id				: 論理プロセッサが属する物理的なプロセッサ(ソケット)の識別子を示す．
+	siblings					: 同じ物理プロセッサ上での同時実行可能なスレッド数を示す．
+	core id						: マルチコアプロセッサが複数の物理コアを持つ場合，各論理プロセッサ(スレッド)がどの物理コアに属しているかを示す識別子．
+	cpu cores					: 物理コア数を示す．
+	apicid						: APIC(Advanced Programmable Interrupt Controller)に関連する識別子．プロセッサがシステム内で一意に識別されるために使用される．
+											APICは，複数のプロセッサやデバイス間に割り込みを管理し，制御するための高度な制御装置．
+	initial apicid		: ブートプロセッサ(最初に起動するプロセッサ)のAPIC識別子を示す．
+	fpu								: 浮動小数点ユニット(FPU)の有無を示す．FPUは浮動小数点をサポートするユニットであり，数値計算や科学技術計算などで用いられる．
+	fpu_exception			: 浮動小数点例外が有効か無効かを示す．計算中に発生する数値のオーバーフローやアンダーフロー，ゼロ除算などの特殊条件を処理するためのもの．
+	cpuid level				: CPUID命令のレベルを示す．プロセッサの特性や機能に関する情報を取得するための命令．
+	wp								: Write Protectビットの有無を示す．一部のプロセッサでメモリ領域を読取り専用または書き込み可能に設定するための機能．
+	flags							: プロセッサのサポートをする特殊機能を示す．
+	bugs							: プロセッサのバグや制約条件に関連する情報を示す．
+	bogomips					: システムのボゴマイプス値を示す(ベンチマーク単位)
+	TLB size					: Translation Lookaside Bufferのサイズを示す．
+											TLBは仮想アドレスと物理アドレスの対応を保持するキャッシュであり，メモリあくせすの拘束かに寄与します．
+	clflush size			: キャッシュラインのフラッシュ(無効化)のサイズを示す．キャッシュラインは，メモリアクセスの最小単位．データをキャッシュからメモリに戻す際のフラッシュするサイズ．
+											単位はByte．プロセッサ内のキャッシュはこのサイズの塊単位でデータを扱う．
+	cache_alignment		: キャッシュのアライメント(配置)サイズを示す．アライメントは，データや命令がキャッシュ内でどのように配置されるかを指定する．
+	address sizes			: アドレスサイズに関連する情報を示す．32bit architectureでは32bit, 64bit architectureでは64bitのアドレス空間がサポートされている．
+	power management	: 電力管理に関する情報を示す．プロセッサの省エネ機能やクロック周波数の変更など，電力消費を調整する機能に関連する情報が含まれる．
+
 
 [ttyとは？]
 UNIXでは端末のことをttyと呼ぶ。
@@ -265,4 +301,11 @@ ex) www.linux.or.jp
 (現在では、基本的にDNSが対応している。しかし、小さなネットワーク(会社・家庭など)では使われている)
 
 
-[wall, cron]
+[wall]
+現在ログインしているすべてのユーザに対してメッセージを書き込むコマンド．ブロードキャスト．
+メッセージの受信を拒否する設定をしているユーザには管理者だけがメッセージを届けることができる．
+-g [group]
+このオプションによって特定のグループに限定してメッセージを送信することができる．
+
+
+[cron]
