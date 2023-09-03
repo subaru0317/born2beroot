@@ -298,7 +298,7 @@ rootはこの論理ボリュームの名前です。
 この論理ボリュームは通常、Linuxシステムのルートファイルシステム（/）
 として使用されます．
 
-$'\n'`top -bn1 | grep load | awk '{printf "#CPU Load: %.2f\n", $(NF-2)}'` \
+$'\n'`top -bn1 | grep Cpu | awk '{printf "#CPU Load: %.2f\n", 100-$8}'` \
 top: Linuxの稼働中のシステムの動的なリアルタイムのタスクを表示する
 -b: バッチモードで実行する．
 バッチモードでは、topは対話的なユーザーインタラクションを必要とせず，単一の出力を生成します。
@@ -307,9 +307,21 @@ top: Linuxの稼働中のシステムの動的なリアルタイムのタスク�
 -n1は、topが1回だけ情報を表示して終了することを意味します。
 topがリアルタイムの情報を表示せずに、単一の瞬間のスナップショットを生成します．
 
+id: アイドル状態
+    CPUがアイドル状態である時間の割合を示します。
+		アイドル状態のCPUは何も実行されておらず、空きリソースがあることを示します。
+		従って，現在の使用率は100 - idle(%)で計算することができます．
 
-$'\n#Last boot: ' `who -b | awk '{print $3" "$4" "$5}'` \
+$'\n#Last boot: ' `who -b | awk '{print $3" "$4}'` \
+who: 誰がログインしているかを表示する
+-b:  最後にシステムが起動した時刻
+$3: 年月日
+$4: 時刻
+
+
 $'\n#LVM use: ' `lsblk |grep lvm | awk '{if ($1) {print "yes";exit;} else {print "no"} }'` \
+
+
 $'\n#Connection TCP:' `netstat -an | grep ESTABLISHED |  wc -l` \
 $'\n#User log: ' `who | cut -d " " -f 1 | sort -u | wc -l` \
 $'\nNetwork: IP ' `hostname -I`"("`ip a | grep link/ether | awk '{print $2}'`")" \
