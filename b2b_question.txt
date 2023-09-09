@@ -319,13 +319,40 @@ $3: 年月日
 $4: 時刻
 
 
-$'\n#LVM use: ' `lsblk |grep lvm | awk '{if ($1) {print "yes";exit;} else {print "no"} }'` \
+$'\n#LVM use: ' `lsblk | (grep -q lvm && echo "yes") || echo "no"
+lsblkにTYPEはデバイスがマウントされている場所を示す．
+-qは沈黙モード．標準出力は行わない．合致するものが存在すれば，即座に正常終了する．
+
+$'\n#Connection TCP:' `ss -ant | grep ESTAB |  wc -l` \
+ss: ネットワークの状況を示す(netstatは最新のディストリビューションでしばしば非推奨)
+	-a: すべてのソケットの状態を表示する
+	-n: アドレスやポートを数値で表示. 名前解決を行わないため高速
+	-t: TCPのみを表示(コネクションを確立するのはTCP．UDPは確立しない．そのため,UDPは数えない)
+
+$'\n#User log: ' `who | awk '{print $1}' | sort -u | wc -l` \
+whoは現在ログインしているユーザを出力する．
+しかし，同じユーザーが複数のターミナルでログインしている場合、それぞれを別々にカウントされる．
+この重複を取り除く必要がある．
+awk '{print $1}': ユーザ名のみ取得する
+sort -u: 重複を取り除いてソートする
+wc -l: 行数の取得
 
 
-$'\n#Connection TCP:' `netstat -an | grep ESTABLISHED |  wc -l` \
-$'\n#User log: ' `who | cut -d " " -f 1 | sort -u | wc -l` \
-$'\nNetwork: IP ' `hostname -I`"("`ip a | grep link/ether | awk '{print $2}'`")" \
-$'\n#Sudo:  ' `grep 'sudo ' /var/log/auth.log | wc -l`
+$'\nNetwork: IP ' `hostname -I`"("`ip addr show | grep link/ether | awk '{print $2}'`")" \
+hostname -i : lo(ローカルループバックインターフェース)のアドレス．
+							これは，PCが内部で使用するためのアドレス．
+hostname -I : 外部との通信で使用するIPアドレス．
+(ip addr showで詳しい情報を確認できる)
+
+$'\n#Sudo:  ' `grep -c 'sudo:' /var/log/auth.log`
+grep -c: マッチした行数が出現した回数を出力する(wc -lと同じ)
+auth.log: ログイン履歴に関する情報を含むログファイル．
+Q．なんで, sudo1回実行しただけで，たくさんSudoの値が増えるの？
+A. auth.logにsudo実行時に
+    ・sudoのコマンド実行のログエントリ: このエントリは、どのユーザーがsudoコマンドを実行し、どのコマンドが実行されたかに関する詳細情報を提供します。
+    ・ユーザーの認証ログインログエントリ: このエントリは、sudoコマンドを実行したユーザーの認証に関する情報を提供します。ユーザーの認証が成功または失敗したか、認証方法などが含まれます。
+    ・PAM（Pluggable Authentication Module）のログエントリ: このエントリは、PAMを介してsudoコマンドの認証が試行された詳細情報を提供します。認証試行の成功または失敗が記録されます。
+	 がたいてい記録されるから．
 
 /proc/cpuinfo:
 	processor					: 論理プロセッサの番号を示す．
