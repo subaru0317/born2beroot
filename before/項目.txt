@@ -1,0 +1,15 @@
+・How a virtual machine works.osの中にosを起動しているという説明
+・the difference between aptitude and apt, and what APPArmor is. aptitudeは依存関係に柔軟と非公式という説明
+・what is cron 
+・why sudo?
+・Check that the SSH service is started with the help of the evaluator.
+  systemctl status
+  sudo ss -tunlp
+・more than 3 consecutive identical characters.
+=>more than を「より大きい」と解釈するとmaxrepeatは3が正解となります
+・The password must have at least 7 characters that are not part of the former password.
+=>設定内容は正しいですが、確認方法をご存知ではなかったため、正しく設定できているかご自身で確認いただくのをお勧めします（sudoを付けないでパスワード変更）
+monitoring scriptについて、
+  VMの設定画面でCPUを増やした場合に、#CPU physical  #vCPU の結果を確認
+%Cpu(s) : 100 - id で出力した結果だとどうなるか
+groups user：userが所属しているグループを確認

@@ -1,0 +1,15 @@
+$ apt-get install ufw
+$ sudo ufw enable
+$ sudo ufw status numbered
+$ sudo ufw allow ssh
+$ sudo ufw allow 4242
+$ sudo ufw status numbered
+$ sudo ufw delete [number]
+$ sudo systemctl restart ssh
+$ sudo ufw reload
+
+
+sudo ufw delete allow 8080で一発でできる．
+
+
+dpkg - l ufwで存在を確認．

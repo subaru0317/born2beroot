@@ -1,0 +1,29 @@
+$ sudo apt-get update
+$ sudo apt install openssh-server
+$ sudo systemctl status ssh
+$ service ssh restart
+$ sudo nano /etc/ssh/sshd_config
+  #Port 22
+  Port 4242
+$ sudo grep Port /etc/ssh/sshd_config
+$ sudo service ssh restart
+
+CONNECT
+$ sudo systemctl restart ssh
+$ sudo service sshd status
+$ ssh smihata@127.0.0.1 -p 4242 (by terminal)
+$ exit
+
+※注意
+passwd: subaru^MIHATA0317
+VirtualBoxはUSキーボードなので, JISキーボードの&の位置が^になっている．
+
+PermitRootLogin yesでsshからrootログインできる．
+
+sdcpu
+
+listening 受信待機
+0.0.0.0 IPv4の任意のアドレス
+::      IPv6の任意のアドレス
+
+ip link show

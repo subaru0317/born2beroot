@@ -1,0 +1,11 @@
+[SSH]
+dpkg -l | grep ssh
+sudo sysytemctl status ssh
+
+sudo lsof -i -P
+-P : Port番号の表示
+-i : networkのみに絞る（ネットワークソケットを対象にする）
+lsof : 全てのコネクションを確認するコマンド
+
+
+df --total -BM 

@@ -1,0 +1,21 @@
+$ sudo groupadd user42
+$ sudo groupadd evaluating
+$ getent group
+
+$ cut -d: -f1 /etc/passwd
+$ sudo adduser [new_username]
+$ sudo groupadd [group_name]
+$ sudo usermod -aG [group_name] [new_username]
+$ usermod -aG sudo [new_username]
+$ getent group [group_name]
+$ groups
+$ groups [new_username]
+$ chage -l [new_username]
+$ sudo groupdel [group_name]
+$ sudo userdel [new_username]
+
+$ getent group sudo user42
+
+qdifok 7文字以上異なるならOK
+
+dpkg

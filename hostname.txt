@@ -1,0 +1,7 @@
+$ hostnamectl
+$ hostnamectl status
+$ hostnamectl set-hostname [new_hostname]
+$ sudo nano /etc/hosts
+  127.0.0.1       localhost
+  127.0.0.1       new_hostname
+$ sudo reboot
